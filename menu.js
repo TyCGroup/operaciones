@@ -76,8 +76,8 @@ function handleMenuNavigation(index) {
         },
         {
             name: 'Modificación de Evento',
-            url: 'modificar-evento.html',
-            action: () => navigateToPage('modificar-evento.html')
+            url: 'modificacion.html',
+            action: () => navigateToPage('modificacion.html')
         },
         {
             name: 'Reportes',

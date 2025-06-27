@@ -86,6 +86,94 @@ function calculateTotal() {
     totalInput.value = total.toFixed(2);
 }
 
+// Función para mostrar la pantalla de éxito
+function showSuccessScreen() {
+    // Crear el overlay de la pantalla de éxito que cubre TODA la pantalla
+    const successOverlay = document.createElement('div');
+    successOverlay.id = 'successOverlay';
+    successOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #16a34a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease-in-out;
+    `;
+    
+    // Contenido de la pantalla de éxito
+    successOverlay.innerHTML = `
+        <div style="text-align: center; color: white; padding: 2rem;">
+            <div style="margin-bottom: 2rem;">
+                <svg style="width: 120px; height: 120px; margin: 0 auto; animation: pulse 2s infinite;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h2 style="font-size: 3rem; font-weight: bold; margin-bottom: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">¡Evento Registrado!</h2>
+            <p style="font-size: 1.5rem; margin-bottom: 2rem; opacity: 0.9;">El evento se ha guardado exitosamente</p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.25rem;">
+                <span>Regresando al menú en</span>
+                <span id="countdown" style="font-weight: bold; font-size: 2rem; color: #fef08a;">2</span>
+                <span>segundos...</span>
+            </div>
+        </div>
+    `;
+    
+    // Agregar el overlay al body
+    document.body.appendChild(successOverlay);
+    
+    // Limpiar el formulario inmediatamente
+    form.reset();
+    folioContainer.classList.add('hidden');
+    document.getElementById('folio').removeAttribute('required');
+    
+    // Limpiar cualquier estado de error
+    const errorFields = document.querySelectorAll('.error');
+    errorFields.forEach(field => field.classList.remove('error'));
+    
+    // Remover cualquier mensaje existente
+    const messages = document.querySelectorAll('.success-message, .error-message');
+    messages.forEach(msg => msg.remove());
+    
+    // Iniciar la cuenta regresiva
+    let countdown = 2;
+    const countdownElement = document.getElementById('countdown');
+    
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdownElement) {
+            countdownElement.textContent = countdown;
+        }
+        
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            // Redireccionar al menú
+            window.location.href = 'menu.html';
+        }
+    }, 1000);
+    
+    // Agregar estilos CSS para las animaciones si no existen
+    if (!document.getElementById('successStyles')) {
+        const style = document.createElement('style');
+        style.id = 'successStyles';
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0.9); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
 async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -139,21 +227,16 @@ async function handleFormSubmit(e) {
         // Save to Firestore
         const docRef = await db.collection('eventos').add(eventData);
         
-        // Show success message
-        showMessage('Evento guardado exitosamente', 'success');
-        
-        // Reset form
-        form.reset();
-        folioContainer.classList.add('hidden');
-        document.getElementById('folio').removeAttribute('required');
-        
         console.log('Evento guardado con ID:', docRef.id);
+        
+        // Mostrar pantalla de éxito y redireccionar
+        showSuccessScreen();
         
     } catch (error) {
         console.error('Error al guardar evento:', error);
         showMessage('Error al guardar el evento: ' + error.message, 'error');
-    } finally {
-        // Reset button state
+        
+        // Reset button state on error
         submitButton.innerHTML = originalText;
         submitButton.disabled = false;
         form.classList.remove('loading');
