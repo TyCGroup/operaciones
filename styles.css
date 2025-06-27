@@ -1,0 +1,218 @@
+/* Custom styles for the login form */
+
+/* Body and layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+/* Form container animations */
+.bg-white {
+    transition: all 0.3s ease;
+}
+
+.bg-white:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Input focus effects */
+.input-focused {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-color: #374151;
+}
+
+/* Button hover effects */
+button[type="submit"] {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* Password toggle button */
+#togglePassword {
+    transition: color 0.2s ease;
+}
+
+#togglePassword:focus {
+    outline: none;
+}
+
+/* Loading animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Shake animation for errors */
+@keyframes shake {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(0);
+    }
+    10% {
+        transform: translateX(-10px);
+    }
+    30% {
+        transform: translateX(10px);
+    }
+    60% {
+        transform: translateX(-5px);
+    }
+    90% {
+        transform: translateX(5px);
+    }
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Error message styling */
+#errorMessage {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design adjustments */
+@media (max-width: 640px) {
+    .max-w-md {
+        max-width: 90%;
+        margin: 0 auto;
+    }
+    
+    .p-8 {
+        padding: 1.5rem;
+    }
+    
+    .bg-white.rounded-lg.shadow-lg.p-8 {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Form validation styles */
+input:invalid {
+    border-color: #ef4444;
+}
+
+input:valid {
+    border-color: #10b981;
+}
+
+/* Focus ring customization */
+input:focus-visible {
+    outline: 2px solid #374151;
+    outline-offset: 2px;
+}
+
+button:focus-visible {
+    outline: 2px solid #374151;
+    outline-offset: 2px;
+}
+
+/* Disabled state for submit button */
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+/* Icon container styling */
+.bg-gray-800.rounded-lg {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+}
+
+/* Form field spacing */
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 1.5rem;
+}
+
+/* Label styling */
+label {
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Placeholder styling */
+input::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+/* Card shadow enhancement */
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .bg-gray-50 {
+        background: white;
+    }
+    
+    .shadow-lg {
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+    }
+}
+
