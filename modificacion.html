@@ -144,7 +144,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="editFolio">Folio</label>
-                            <input type="text" id="editFolio" readonly>
+                            <input type="text" id="editFolio" >
                         </div>
                         <div class="form-group">
                             <label for="editNombreEvento">Nombre del Evento</label>
@@ -152,7 +152,9 @@
                         </div>
                         <div class="form-group">
                             <label for="editOperador">Operador</label>
-                            <input type="text" id="editOperador" required>
+                            <select id="editOperador" required>
+                                <option value="">Cargando operadores...</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="editNumeroFactura">Número de Factura</label>
@@ -181,6 +183,24 @@
                         <div class="form-group">
                             <label for="editMontoPagado">Monto Pagado</label>
                             <input type="number" id="editMontoPagado" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSubtotal">Subtotal</label>
+                            <input type="number" id="editSubtotal" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTotal">Total</label>
+                            <input type="number" id="editTotal" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCarpetaAuditoria">Carpeta Entregada Auditoría</label>
+                            <select id="editCarpetaAuditoria" required>
+                                <option value="">Seleccione el estado</option>
+                                <option value="auditoria">Auditoría</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="completado">Completado</option>
+                                <option value="en_revision">En Revisión</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="editZona">Zona</label>

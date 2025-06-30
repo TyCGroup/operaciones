@@ -7,6 +7,7 @@ let filteredEvents = [];
 let currentPage = 1;
 let pageSize = 10;
 let editingEventId = null;
+let isReadOnly = false;
 
 // DOM Elements
 const elements = {
@@ -60,6 +61,8 @@ async function initializeApp() {
         showNotification('Error al inicializar la aplicación', 'error');
         showLoading(false);
     }
+    await loadOperatorOptions();
+
 }
 
 // Event Listeners Setup
@@ -71,6 +74,9 @@ function setupEventListeners() {
     elements.dateFrom.addEventListener('change', applyFilters);
     elements.dateTo.addEventListener('change', applyFilters);
     elements.statusFilter.addEventListener('change', applyFilters);
+    document.getElementById('editSubtotal').addEventListener('input', recalculateTotal);
+    document.getElementById('editIva').addEventListener('input', recalculateTotal);
+
     
     // Button events
     elements.refreshBtn.addEventListener('click', refreshData);
@@ -272,7 +278,7 @@ function createEventRow(event) {
                 <button class="btn btn-sm btn-primary" onclick="editEvent('${event.id}')" title="Editar">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-sm btn-info" onclick="viewEventDetails('${event.id}')" title="Ver detalles">
+                <<button class="btn btn-sm btn-info" onclick="editEvent('${event.id}', true)" title="Ver detalles">
                     <i class="fas fa-eye"></i>
                 </button>
             </div>
@@ -405,16 +411,21 @@ function updateFilteredStats() {
 }
 
 // Edit event
-function editEvent(eventId) {
+function editEvent(eventId, readOnly = false) {
     const event = allEvents.find(e => e.id === eventId);
     if (!event) {
         showNotification('Evento no encontrado', 'error');
         return;
     }
-    
+
     editingEventId = eventId;
-    
-    // Populate form
+    isReadOnly = readOnly;
+    document.querySelector('#editModal .modal-header h2').innerHTML = `
+    <i class="fas fa-${readOnly ? 'eye' : 'edit'}"></i> ${readOnly ? 'Ver Detalles del Evento' : 'Editar Evento'}
+`;
+
+
+    // Rellenar campos como ya lo haces
     document.getElementById('editFolio').value = event.folio || '';
     document.getElementById('editNombreEvento').value = event.nombreEvento || '';
     document.getElementById('editOperador').value = event.operador || '';
@@ -422,14 +433,25 @@ function editEvent(eventId) {
     document.getElementById('editFechaInicio').value = formatDateForInput(event.fechaInicio);
     document.getElementById('editFechaFinal').value = formatDateForInput(event.fechaFinal);
     document.getElementById('editIva').value = event.iva || 0;
-    document.getElementById('editMontoPendiente').value = event.montoPendiente || 0;
-    document.getElementById('editMontoNoPagado').value = event.montoNoPagado || 0;
-    document.getElementById('editMontoPagado').value = event.montoPagado || 0;
+    document.getElementById('editMontoPendiente').value = event.montoPendienteFacturar || 0;
+    document.getElementById('editMontoNoPagado').value = event.montoFacturadoNoPagado || 0;
+    document.getElementById('editMontoPagado').value = event.montoFacturadoPagado || 0;
+    document.getElementById('editSubtotal').value = event.subtotal || 0;
+    document.getElementById('editTotal').value = event.total || 0;
     document.getElementById('editZona').value = event.zona || '';
     document.getElementById('editTieneOrdenSRE').value = event.tieneOrdenSRE ? 'true' : 'false';
+    document.getElementById('editCarpetaAuditoria').value = event.carpetaAuditoria || '';
     document.getElementById('editObservaciones').value = event.observaciones || '';
-    
-    // Show modal
+
+    // Deshabilitar campos si es modo solo lectura
+    const inputs = elements.editModal.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => input.disabled = readOnly);
+
+    // Mostrar/ocultar botones según modo
+    elements.saveEvent.style.display = readOnly ? 'none' : 'inline-block';
+    elements.cancelEdit.textContent = readOnly ? 'Cerrar' : 'Cancelar';
+
+    // Mostrar modal
     elements.editModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
@@ -459,9 +481,12 @@ async function saveEventChanges() {
             fechaInicio: new Date(document.getElementById('editFechaInicio').value),
             fechaFinal: new Date(document.getElementById('editFechaFinal').value),
             iva: parseFloat(document.getElementById('editIva').value) || 0,
-            montoPendiente: parseFloat(document.getElementById('editMontoPendiente').value) || 0,
-            montoNoPagado: parseFloat(document.getElementById('editMontoNoPagado').value) || 0,
-            montoPagado: parseFloat(document.getElementById('editMontoPagado').value) || 0,
+            montoPendienteFacturar: parseFloat(document.getElementById('editMontoPendiente').value) || 0,
+            montoFacturadoNoPagado: parseFloat(document.getElementById('editMontoNoPagado').value) || 0,
+            montoFacturadoPagado: parseFloat(document.getElementById('editMontoPagado').value) || 0,
+            subtotal: parseFloat(document.getElementById('editSubtotal').value) || 0,
+            total: parseFloat(document.getElementById('editTotal').value) || 0,
+            carpetaAuditoria: document.getElementById('editCarpetaAuditoria').value.trim(),
             zona: document.getElementById('editZona').value.trim(),
             tieneOrdenSRE: document.getElementById('editTieneOrdenSRE').value === 'true',
             observaciones: document.getElementById('editObservaciones').value.trim(),
@@ -598,3 +623,38 @@ function debounce(func, delay) {
 // Global functions for onclick events
 window.editEvent = editEvent;
 window.viewEventDetails = viewEventDetails;
+
+async function loadOperatorOptions() {
+    const select = document.getElementById('editOperador');
+    try {
+        const snapshot = await db.collection('usuarios').get();
+        const options = [];
+
+        snapshot.forEach(doc => {
+            const nombre = doc.data().Nombre;
+            if (nombre) {
+                options.push(nombre);
+            }
+        });
+
+        // Limpiar y agregar opciones
+        select.innerHTML = '<option value="">Seleccione un operador</option>';
+        options.sort().forEach(nombre => {
+            const option = document.createElement('option');
+            option.value = nombre;
+            option.textContent = nombre;
+            select.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error('Error cargando operadores:', error);
+        select.innerHTML = '<option value="">Error al cargar operadores</option>';
+    }
+}
+
+function recalculateTotal() {
+    const subtotal = parseFloat(document.getElementById('editSubtotal').value) || 0;
+    const iva = parseFloat(document.getElementById('editIva').value) || 0;
+    const total = subtotal + (subtotal * iva / 100);
+    document.getElementById('editTotal').value = total.toFixed(2);
+}
