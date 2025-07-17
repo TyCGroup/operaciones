@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Eventos</title>
+    <link rel="stylesheet" href="modificacion.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+    <div class="flex-header">
+        <h1><i class="fas fa-calendar-alt"></i> Gestión de Eventos</h1>
+        <div class="header-actions">
+            <a href="menu.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Menú
+            </a>
+            <button class="btn btn-primary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Actualizar
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Filtros -->
+<div class="filters-section">
+    <div class="filters-grid">
+        <div class="filter-group">
+            <label for="searchEvent">Buscar Evento</label>
+            <input type="text" id="searchEvent" placeholder="Nombre del evento...">
+        </div>
+        <div class="filter-group">
+            <label for="searchOperator">Operador</label>
+            <input type="text" id="searchOperator" placeholder="Nombre del operador...">
+        </div>
+        <div class="filter-group">
+            <label for="dateRange">Rango de Fechas</label>
+            <div class="date-range">
+                <input type="date" id="dateFrom">
+                <span>hasta</span>
+                <input type="date" id="dateTo">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-secondary" id="clearFilters">
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+            <button class="btn btn-primary" id="applyFilters">
+                <i class="fas fa-search"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>
+
+        <!-- Estadísticas -->
+<div class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalEvents">0</h3>
+                <p>Total Eventos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Tabla de Eventos -->
+        <div class="table-section">
+            <div class="table-header">
+                <h2>Lista de Eventos</h2>
+                <div class="table-actions">
+                    <select id="pageSize">
+                        <option value="10">10 por página</option>
+                        <option value="25">25 por página</option>
+                        <option value="50">50 por página</option>
+                        <option value="100">100 por página</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="events-table" id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Evento</th>
+                            <th>Operador</th>
+                            <th>Fecha Evento</th>
+                            <th>Factura</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        <!-- Los eventos se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination" id="pagination">
+                <!-- Los controles de paginación se generarán aquí -->
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Cargando eventos...</p>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Evento -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit"></i> Editar Evento</h2>
+            <button class="modal-close" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editEventForm">
+                
+                <!-- INFORMACIÓN GENERAL -->
+                <div class="form-section-group">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-info-circle"></i> Información General
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editFolio">Folio</label>
+                            <input type="text" id="editFolio" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="editNombreEvento">Nombre del Evento</label>
+                            <input type="text" id="editNombreEvento" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editOperador">Operador</label>
+                            <select id="editOperador" class="form-select" required>
+                                <option value="">Cargando operadores...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFechaInicio">Fecha Inicio</label>
+                            <input type="date" id="editFechaInicio" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFechaFinal">Fecha Final</label>
+                            <input type="date" id="editFechaFinal" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editZona">Zona</label>
+                            <select id="editZona" class="form-select" required>
+                                <option value="">Seleccione una zona</option>
+                                <option value="Zona 1">Zona 1</option>
+                                <option value="Zona 2">Zona 2</option>
+                                <option value="Zona 3">Zona 3</option>
+                                <option value="Zona 4">Zona 4</option>
+                                <option value="Zona 5">Zona 5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCiudad">Ciudad</label>
+                            <input type="text" id="editCiudad" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTieneOrdenSRE">Tiene Orden SRE</label>
+                            <select id="editTieneOrdenSRE" class="form-select">
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN FINANCIERA -->
+                <div class="form-section-group">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-dollar-sign"></i> Información Financiera
+                    </h3>
+                    
+                    <!-- RESUMEN FINANCIERO -->
+                    <div class="resumen-section">
+                        <h4 class="resumen-title">
+                            <i class="fas fa-chart-line"></i> Resumen
+                        </h4>
+                        
+                        <!-- Primera línea: Subtotal, IVA, Programa Lealtad, Proveedores, Total -->
+<div class="resumen-grid">
+    <div class="resumen-item">
+        <label>Subtotal</label>
+        <input type="number" id="resumenSubtotalInput" class="resumen-input" placeholder="0.00" step="0.01">
+    </div>
+    <div class="resumen-item">
+        <label>IVA</label>
+        <input type="number" id="resumenIVAInput" class="resumen-input" placeholder="0.00" step="0.01">
+    </div>
+    <div class="resumen-item">
+        <label>Programa Lealtad</label>
+        <input type="number" id="resumenProgramaLealtadInput" class="resumen-input" placeholder="0.00" step="0.01">
+    </div>
+    <div class="resumen-item">
+        <label>Pago Proveedores</label>
+        <input type="number" id="resumenProveedoresInput" class="resumen-input" placeholder="0.00" step="0.01">
+    </div>
+    <div class="resumen-item destacado">
+        <label>Total del Evento</label>
+        <div class="resumen-value-total" id="resumenTotalEvento">$0.00</div>
+    </div>
+</div>
+
+<!-- Segunda línea: Estados de facturación + Utilidad -->
+<div class="resumen-estados">
+    <div class="estado-item pagado">
+        <label>Pagado</label>
+        <div class="estado-value" id="resumenPagado">$0.00</div>
+    </div>
+    <div class="estado-item sin-pagar">
+        <label>Facturado Sin Pagar</label>
+        <div class="estado-value" id="resumenSinPagar">$0.00</div>
+    </div>
+    <div class="estado-item pendiente">
+        <label>Pendiente por Facturar</label>
+        <div class="estado-value" id="resumenPendiente">$0.00</div>
+    </div>
+    <div class="estado-item utilidad">
+        <label>Total Utilidad</label>
+        <div class="estado-value" id="resumenUtilidadTotal">$0.00</div>
+        <div class="utilidad-porcentaje" id="resumenUtilidadPorcentaje">0.0%</div>
+    </div>
+</div>
+                    
+                    <div class="dynamic-section">
+                        <div class="dynamic-header">
+                            <label class="section-label">Facturas</label>
+                            <button type="button" class="btn-add" onclick="addFacturaCard()">
+                                <i class="fas fa-plus"></i> Agregar Factura
+                            </button>
+                        </div>
+                        <div id="facturasContainer" class="facturas-container">
+                            <!-- Las tarjetas de facturas se generarán aquí -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN ADMINISTRATIVA -->
+                <div class="form-section-group">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-clipboard-list"></i> Información Administrativa
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editCarpetaAuditoria">Carpeta Entregada Auditoría</label>
+                            <select id="editCarpetaAuditoria" class="form-select" required>
+                                <option value="">Seleccione el estado</option>
+                                <option value="auditoria">Auditoría</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="completado">Completado</option>
+                                <option value="en_revision">En Revisión</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="editObservaciones">Observaciones</label>
+                            <textarea id="editObservaciones" class="form-textarea" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelEdit">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="saveEvent">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="modificacion.js"></script>
+</body>
+</html>

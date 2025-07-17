@@ -47,12 +47,7 @@ const elements = {
     resumenTotalEvento: document.getElementById('resumenTotalEvento'),
     resumenPagado: document.getElementById('resumenPagado'),
     resumenSinPagar: document.getElementById('resumenSinPagar'),
-    resumenPendiente: document.getElementById('resumenPendiente'),
-    
-    // Nuevos elementos del resumen
-    resumenProgramaLealtadInput: document.getElementById('resumenProgramaLealtadInput'),
-    resumenProveedoresInput: document.getElementById('resumenProveedoresInput'),
-    resumenUtilidadFinal: document.getElementById('resumenUtilidadFinal')
+    resumenPendiente: document.getElementById('resumenPendiente')
 };
 
 // Initialize the application
@@ -73,20 +68,13 @@ async function initializeApp() {
         showLoading(false);
     }
     await loadOperatorOptions();
-    
     // Event listeners para resumen manual
-    if (elements.resumenSubtotalInput) {
-        elements.resumenSubtotalInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenIVAInput) {
-        elements.resumenIVAInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenProgramaLealtadInput) {
-        elements.resumenProgramaLealtadInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenProveedoresInput) {
-        elements.resumenProveedoresInput.addEventListener('input', updateResumenFinanciero);
-    }
+if (elements.resumenSubtotalInput) {
+    elements.resumenSubtotalInput.addEventListener('input', updateResumenFinanciero);
+}
+if (elements.resumenIVAInput) {
+    elements.resumenIVAInput.addEventListener('input', updateResumenFinanciero);
+}
 }
 
 // Event Listeners Setup
@@ -326,8 +314,6 @@ function updateResumenFinanciero() {
     // Obtener valores manuales
     const subtotalManual = parseFloat(elements.resumenSubtotalInput.value) || 0;
     const ivaManual = parseFloat(elements.resumenIVAInput.value) || 0;
-    const programaLealtad = parseFloat(elements.resumenProgramaLealtadInput.value) || 0;
-    const proveedores = parseFloat(elements.resumenProveedoresInput.value) || 0;
     
     // Calcular totales de facturas
     let totalPagado = 0;
@@ -346,10 +332,6 @@ function updateResumenFinanciero() {
     const totalEvento = subtotalManual + ivaManual;
     const pendientePorFacturar = totalEvento - totalPagado - totalSinPagar;
     
-    // Calcular utilidad total
-    const utilidadTotal = totalEvento - programaLealtad - proveedores;
-    const utilidadPorcentaje = totalEvento > 0 ? (utilidadTotal / totalEvento) * 100 : 0;
-    
     // Actualizar elementos del DOM
     if (elements.resumenTotalEvento) {
         elements.resumenTotalEvento.textContent = '$' + formatNumber(totalEvento);
@@ -362,10 +344,6 @@ function updateResumenFinanciero() {
     }
     if (elements.resumenPendiente) {
         elements.resumenPendiente.textContent = '$' + formatNumber(Math.max(0, pendientePorFacturar));
-    }
-    if (elements.resumenUtilidadFinal) {
-        elements.resumenUtilidadFinal.textContent = 
-            '$' + formatNumber(utilidadTotal) + ' (' + utilidadPorcentaje.toFixed(1) + '%)';
     }
 }
 
@@ -605,20 +583,6 @@ function editEvent(eventId, readOnly = false) {
     // Cargar facturas
     loadFacturas(event);
 
-    // Cargar valores manuales si existen
-    if (elements.resumenSubtotalInput) {
-        elements.resumenSubtotalInput.value = event.subtotalManual || 0;
-    }
-    if (elements.resumenIVAInput) {
-        elements.resumenIVAInput.value = event.ivaManual || 0;
-    }
-    if (elements.resumenProgramaLealtadInput) {
-        elements.resumenProgramaLealtadInput.value = event.programaLealtadManual || 0;
-    }
-    if (elements.resumenProveedoresInput) {
-        elements.resumenProveedoresInput.value = event.proveedoresManual || 0;
-    }
-
     // Deshabilitar campos si es modo solo lectura
     if (readOnly) {
         const inputs = elements.editModal.querySelectorAll('input, select, textarea');
@@ -677,13 +641,13 @@ function loadFacturas(event) {
     }
 }
 
-// Función modificada para crear las tarjetas de factura en formato compacto
+// Agregar nueva tarjeta de factura
 function addFacturaCard(facturaData = null) {
     const container = document.getElementById('facturasContainer');
     const facturaId = facturaCounter++;
     
     const facturaCard = document.createElement('div');
-    facturaCard.className = 'factura-card compact';
+    facturaCard.className = 'factura-card';
     facturaCard.setAttribute('data-factura-id', facturaId);
     
     const factura = facturaData || {
@@ -698,57 +662,59 @@ function addFacturaCard(facturaData = null) {
     };
     
     facturaCard.innerHTML = 
-        '<div class="factura-card-header compact">' +
+        '<div class="factura-card-header">' +
             '<div class="factura-title">' +
                 '<i class="fas fa-file-invoice-dollar"></i>' +
                 'Factura #' + facturaId +
             '</div>' +
-            '<button type="button" class="btn-remove-factura compact" onclick="removeFacturaCard(' + facturaId + ')">' +
-                '<i class="fas fa-trash"></i>' +
+            '<button type="button" class="btn-remove-factura" onclick="removeFacturaCard(' + facturaId + ')">' +
+                '<i class="fas fa-trash"></i> Eliminar' +
             '</button>' +
         '</div>' +
         
-        '<div class="factura-row-compact">' +
-            '<div class="factura-field">' +
-                '<label>Fecha</label>' +
-                '<input type="date" class="form-input compact factura-fecha" value="' + factura.fecha + '" data-field="fecha">' +
+        '<div class="factura-grid">' +
+            '<div class="factura-form-group">' +
+                '<label>Fecha de Factura</label>' +
+                '<input type="date" class="form-input factura-fecha" value="' + factura.fecha + '" data-field="fecha">' +
             '</div>' +
             
-            '<div class="factura-field">' +
+            '<div class="factura-form-group">' +
                 '<label>No. Factura</label>' +
-                '<input type="text" class="form-input compact factura-numero" placeholder="Número" value="' + factura.numeroFactura + '" data-field="numeroFactura">' +
+                '<input type="text" class="form-input factura-numero" placeholder="Número de factura" value="' + factura.numeroFactura + '" data-field="numeroFactura">' +
             '</div>' +
             
-            '<div class="factura-field">' +
+            '<div class="factura-form-group">' +
                 '<label>Subtotal</label>' +
-                '<input type="number" class="form-input compact factura-subtotal" placeholder="0.00" step="0.01" value="' + factura.subtotal + '" data-field="subtotal">' +
+                '<div class="currency-input">' +
+                    '<input type="number" class="form-input factura-subtotal" placeholder="0.00" step="0.01" value="' + factura.subtotal + '" data-field="subtotal">' +
+                '</div>' +
             '</div>' +
             
-            '<div class="factura-field">' +
+            '<div class="factura-form-group">' +
                 '<label>IVA (%)</label>' +
-                '<input type="number" class="form-input compact factura-iva" placeholder="0" step="0.01" value="' + factura.iva + '" data-field="iva">' +
+                '<input type="number" class="form-input factura-iva" placeholder="0" step="0.01" value="' + factura.iva + '" data-field="iva">' +
             '</div>' +
             
-            '<div class="factura-field">' +
+            '<div class="factura-form-group">' +
                 '<label>Total</label>' +
-                '<div class="total-display compact factura-total" data-field="total">$' + formatNumber(factura.total) + '</div>' +
+                '<div class="total-display factura-total" data-field="total">' + formatNumber(factura.total) + '</div>' +
             '</div>' +
-            
-            '<div class="factura-field checkboxes">' +
-                '<div class="checkbox-compact">' +
-                    '<input type="checkbox" class="factura-sin-pagar" ' + (factura.sinPagar ? 'checked' : '') + ' data-field="sinPagar">' +
-                    '<label>Sin Pagar</label>' +
-                '</div>' +
-                '<div class="checkbox-compact">' +
-                    '<input type="checkbox" class="factura-pagado" ' + (factura.pagado ? 'checked' : '') + ' data-field="pagado">' +
-                    '<label>Pagado</label>' +
-                '</div>' +
+        '</div>' +
+        
+        '<div class="estado-checkboxes">' +
+            '<div class="checkbox-group sin-pagar">' +
+                '<input type="checkbox" class="factura-sin-pagar" ' + (factura.sinPagar ? 'checked' : '') + ' data-field="sinPagar">' +
+                '<label>Sin Pagar</label>' +
             '</div>' +
-            
-            '<div class="factura-field comentarios-field">' +
-                '<label>Comentarios</label>' +
-                '<input type="text" class="form-input compact factura-comentarios" placeholder="Comentarios..." value="' + factura.comentarios + '" data-field="comentarios">' +
+            '<div class="checkbox-group pagado">' +
+                '<input type="checkbox" class="factura-pagado" ' + (factura.pagado ? 'checked' : '') + ' data-field="pagado">' +
+                '<label>Pagado</label>' +
             '</div>' +
+        '</div>' +
+        
+        '<div class="factura-form-group full-width">' +
+            '<label>Comentarios</label>' +
+            '<textarea class="form-textarea factura-comentarios" rows="2" placeholder="Comentarios adicionales..." data-field="comentarios">' + factura.comentarios + '</textarea>' +
         '</div>';
     
     container.appendChild(facturaCard);
@@ -775,30 +741,26 @@ function setupFacturaEventListeners(facturaCard) {
         const subtotal = parseFloat(subtotalInput.value) || 0;
         const iva = parseFloat(ivaInput.value) || 0;
         const total = subtotal + (subtotal * iva / 100);
-        totalDisplay.textContent = '$' + formatNumber(total);
+        totalDisplay.textContent = formatNumber(total);
         updateResumenFinanciero();
     }
     
     subtotalInput.addEventListener('input', calcularTotal);
     ivaInput.addEventListener('input', calcularTotal);
     
-    if (sinPagarCheckbox) {
-        sinPagarCheckbox.addEventListener('change', function() {
-            if (this.checked && pagadoCheckbox) {
-                pagadoCheckbox.checked = false;
-            }
-            updateResumenFinanciero();
-        });
-    }
+    sinPagarCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            pagadoCheckbox.checked = false;
+        }
+        updateResumenFinanciero();
+    });
     
-    if (pagadoCheckbox) {
-        pagadoCheckbox.addEventListener('change', function() {
-            if (this.checked && sinPagarCheckbox) {
-                sinPagarCheckbox.checked = false;
-            }
-            updateResumenFinanciero();
-        });
-    }
+    pagadoCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            sinPagarCheckbox.checked = false;
+        }
+        updateResumenFinanciero();
+    });
 }
 
 // Eliminar tarjeta de factura
@@ -846,7 +808,7 @@ function collectFacturasData() {
             } else if (input.type === 'number') {
                 factura[field] = parseFloat(input.value) || 0;
             } else if (field === 'total') {
-                const totalText = input.textContent?.replace(/[\$,]/g, '') || '0';
+                const totalText = input.textContent?.replace(/,/g, '') || '0';
                 factura[field] = parseFloat(totalText) || 0;
             } else {
                 factura[field] = input.value.trim();
@@ -876,10 +838,6 @@ async function saveEventChanges() {
             zona: document.getElementById('editZona').value.trim(),
             ciudad: document.getElementById('editCiudad').value.trim(),
             tieneOrdenSRE: document.getElementById('editTieneOrdenSRE').value === 'true',
-            subtotalManual: parseFloat(elements.resumenSubtotalInput.value) || 0,
-            ivaManual: parseFloat(elements.resumenIVAInput.value) || 0,
-            programaLealtadManual: parseFloat(elements.resumenProgramaLealtadInput.value) || 0,
-            proveedoresManual: parseFloat(elements.resumenProveedoresInput.value) || 0,
             
             facturas: facturas,
             
@@ -976,7 +934,7 @@ function formatDateForInput(date) {
 }
 
 function formatNumber(number) {
-    return new Intl.NumberFormat('es-US', {
+    return new Intl.NumberFormat('es-ES', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(number);

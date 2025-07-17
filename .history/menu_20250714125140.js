@@ -74,9 +74,9 @@ function handleMenuNavigation(index) {
             url: 'nuevo-evento.html',
             action: () => navigateToPage('nuevo-evento.html')
         },
-         {
+        {
             name: 'Modificación de Evento',
-            url: 'modificacion.html',  // Cambiado de 'modificacion.html'
+            url: 'modificacion.html',
             action: () => navigateToPage('modificacion.html')
         },
         {

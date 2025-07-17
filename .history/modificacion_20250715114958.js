@@ -39,20 +39,7 @@ const elements = {
     editEventForm: document.getElementById('editEventForm'),
     
     // Loading
-    loading: document.getElementById('loading'),
-    
-    // Resumen elements
-    resumenSubtotalInput: document.getElementById('resumenSubtotalInput'),
-    resumenIVAInput: document.getElementById('resumenIVAInput'),
-    resumenTotalEvento: document.getElementById('resumenTotalEvento'),
-    resumenPagado: document.getElementById('resumenPagado'),
-    resumenSinPagar: document.getElementById('resumenSinPagar'),
-    resumenPendiente: document.getElementById('resumenPendiente'),
-    
-    // Nuevos elementos del resumen
-    resumenProgramaLealtadInput: document.getElementById('resumenProgramaLealtadInput'),
-    resumenProveedoresInput: document.getElementById('resumenProveedoresInput'),
-    resumenUtilidadFinal: document.getElementById('resumenUtilidadFinal')
+    loading: document.getElementById('loading')
 };
 
 // Initialize the application
@@ -73,20 +60,6 @@ async function initializeApp() {
         showLoading(false);
     }
     await loadOperatorOptions();
-    
-    // Event listeners para resumen manual
-    if (elements.resumenSubtotalInput) {
-        elements.resumenSubtotalInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenIVAInput) {
-        elements.resumenIVAInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenProgramaLealtadInput) {
-        elements.resumenProgramaLealtadInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenProveedoresInput) {
-        elements.resumenProveedoresInput.addEventListener('input', updateResumenFinanciero);
-    }
 }
 
 // Event Listeners Setup
@@ -145,7 +118,7 @@ async function loadEvents() {
             });
         });
         
-        console.log('Loaded ' + allEvents.length + ' events');
+        console.log(`Loaded ${allEvents.length} events`);
         updateStats();
         
     } catch (error) {
@@ -216,13 +189,14 @@ function renderTable() {
     elements.eventsTableBody.innerHTML = '';
     
     if (eventsToShow.length === 0) {
-        elements.eventsTableBody.innerHTML = 
-            '<tr>' +
-                '<td colspan="8" class="no-events">' +
-                    '<i class="fas fa-calendar-times"></i>' +
-                    '<p>No se encontraron eventos</p>' +
-                '</td>' +
-            '</tr>';
+        elements.eventsTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="no-events">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No se encontraron eventos</p>
+                </td>
+            </tr>
+        `;
         return;
     }
     
@@ -240,71 +214,60 @@ function createEventRow(event) {
     const total = calculateEventTotal(event);
     
     // Obtener primera factura para mostrar
-    let primeraFactura = 'N/A';
-    if (event.facturas && event.facturas.length > 0) {
-        primeraFactura = event.facturas[0].numeroFactura || 'N/A';
-    } else if (event.numeroFactura) {
-        primeraFactura = event.numeroFactura;
-    }
+    const primeraFactura = event.facturas && event.facturas.length > 0 ? 
+                          event.facturas[0].numeroFactura || 'N/A' : 
+                          event.numeroFactura || 'N/A';
     
-    let facturasExtra = '';
-    if (event.facturas && event.facturas.length > 1) {
-        facturasExtra = '<small>+' + (event.facturas.length - 1) + ' más</small>';
-    }
-    
-    const fechaFinalHtml = (event.fechaFinal && event.fechaFinal.getTime() !== event.fechaInicio.getTime()) ? 
-        '<small>hasta ' + formatDate(event.fechaFinal) + '</small>' : '';
-    
-    const zonaHtml = event.zona ? '<small>Zona: ' + event.zona + '</small>' : '';
-    
-    // CAMBIO PRINCIPAL: usar numeroEvento en lugar de folio
-    const folioDisplay = event.numeroEvento || event.folio || 'N/A';
-    
-    row.innerHTML = 
-        '<td>' +
-            '<span class="folio">' + folioDisplay + '</span>' +
-        '</td>' +
-        '<td>' +
-            '<div class="event-info">' +
-                '<strong>' + event.nombreEvento + '</strong>' +
-                zonaHtml +
-            '</div>' +
-        '</td>' +
-        '<td>' + event.operador + '</td>' +
-        '<td>' +
-            '<div class="date-info">' +
-                '<div>' + formatDate(event.fechaInicio) + '</div>' +
-                fechaFinalHtml +
-            '</div>' +
-        '</td>' +
-        '<td>' +
-            '<span class="factura">' + primeraFactura + '</span>' +
-            facturasExtra +
-        '</td>' +
-        '<td>' +
-            '<div class="amount-info">' +
-                '<strong>$' + formatNumber(total) + '</strong>' +
-            '</div>' +
-        '</td>' +
-        '<td>' +
-            '<span class="status ' + (event.tieneOrdenSRE ? 'status-success' : 'status-warning') + '">' +
-                '<i class="fas ' + (event.tieneOrdenSRE ? 'fa-check-circle' : 'fa-clock') + '"></i>' +
-                (event.tieneOrdenSRE ? 'Con Orden SRE' : 'Sin Orden SRE') +
-            '</span>' +
-        '</td>' +
-        '<td>' +
-            '<div class="action-buttons">' +
-                '<button class="btn btn-sm btn-primary" onclick="editEvent(\'' + event.id + '\')" title="Editar">' +
-                    '<i class="fas fa-edit"></i>' +
-                '</button>' +
-                '<button class="btn btn-sm btn-info" onclick="editEvent(\'' + event.id + '\', true)" title="Ver detalles">' +
-                    '<i class="fas fa-eye"></i>' +
-                '</button>' +
-                '<button class="btn btn-sm btn-danger" onclick="deleteEvent(\'' + event.id + '\')" title="Eliminar">' +
-                    '<i class="fas fa-trash"></i>' +
-                '</button>' +
-            '</div>' +
-        '</td>';
+    row.innerHTML = `
+        <td>
+            <span class="folio">${event.folio || 'N/A'}</span>
+        </td>
+        <td>
+            <div class="event-info">
+                <strong>${event.nombreEvento}</strong>
+                ${event.zona ? `<small>Zona: ${event.zona}</small>` : ''}
+            </div>
+        </td>
+        <td>${event.operador}</td>
+        <td>
+            <div class="date-info">
+                <div>${formatDate(event.fechaInicio)}</div>
+                ${event.fechaFinal && event.fechaFinal.getTime() !== event.fechaInicio.getTime() ? 
+                    `<small>hasta ${formatDate(event.fechaFinal)}</small>` : ''
+                }
+            </div>
+        </td>
+        <td>
+            <span class="factura">${primeraFactura}</span>
+            ${event.facturas && event.facturas.length > 1 ? 
+                `<small>+${event.facturas.length - 1} más</small>` : ''
+            }
+        </td>
+        <td>
+            <div class="amount-info">
+                <strong>$${formatNumber(total)}</strong>
+            </div>
+        </td>
+        <td>
+            <span class="status ${event.tieneOrdenSRE ? 'status-success' : 'status-warning'}">
+                <i class="fas ${event.tieneOrdenSRE ? 'fa-check-circle' : 'fa-clock'}"></i>
+                ${event.tieneOrdenSRE ? 'Con Orden SRE' : 'Sin Orden SRE'}
+            </span>
+        </td>
+        <td>
+            <div class="action-buttons">
+                <button class="btn btn-sm btn-primary" onclick="editEvent('${event.id}')" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-info" onclick="editEvent('${event.id}', true)" title="Ver detalles">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}')" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </td>
+    `;
     
     return row;
 }
@@ -319,56 +282,6 @@ function calculateEventTotal(event) {
     return event.total || 0;
 }
 
-// Función para actualizar el resumen financiero
-function updateResumenFinanciero() {
-    const facturas = collectFacturasData();
-    
-    // Obtener valores manuales
-    const subtotalManual = parseFloat(elements.resumenSubtotalInput.value) || 0;
-    const ivaManual = parseFloat(elements.resumenIVAInput.value) || 0;
-    const programaLealtad = parseFloat(elements.resumenProgramaLealtadInput.value) || 0;
-    const proveedores = parseFloat(elements.resumenProveedoresInput.value) || 0;
-    
-    // Calcular totales de facturas
-    let totalPagado = 0;
-    let totalSinPagar = 0;
-    
-    facturas.forEach(factura => {
-        const total = factura.total || 0;
-        
-        if (factura.pagado) {
-            totalPagado += total;
-        } else if (factura.sinPagar) {
-            totalSinPagar += total;
-        }
-    });
-    
-    const totalEvento = subtotalManual + ivaManual;
-    const pendientePorFacturar = totalEvento - totalPagado - totalSinPagar;
-    
-    // Calcular utilidad total
-    const utilidadTotal = totalEvento - programaLealtad - proveedores;
-    const utilidadPorcentaje = totalEvento > 0 ? (utilidadTotal / totalEvento) * 100 : 0;
-    
-    // Actualizar elementos del DOM
-    if (elements.resumenTotalEvento) {
-        elements.resumenTotalEvento.textContent = '$' + formatNumber(totalEvento);
-    }
-    if (elements.resumenPagado) {
-        elements.resumenPagado.textContent = '$' + formatNumber(totalPagado);
-    }
-    if (elements.resumenSinPagar) {
-        elements.resumenSinPagar.textContent = '$' + formatNumber(totalSinPagar);
-    }
-    if (elements.resumenPendiente) {
-        elements.resumenPendiente.textContent = '$' + formatNumber(Math.max(0, pendientePorFacturar));
-    }
-    if (elements.resumenUtilidadFinal) {
-        elements.resumenUtilidadFinal.textContent = 
-            '$' + formatNumber(utilidadTotal) + ' (' + utilidadPorcentaje.toFixed(1) + '%)';
-    }
-}
-
 // Delete event function
 async function deleteEvent(eventId) {
     const event = allEvents.find(e => e.id === eventId);
@@ -381,29 +294,30 @@ async function deleteEvent(eventId) {
     const confirmModal = document.createElement('div');
     confirmModal.className = 'modal';
     confirmModal.style.display = 'flex';
-    confirmModal.innerHTML = 
-        '<div class="modal-content" style="max-width: 500px;">' +
-            '<div class="modal-header">' +
-                '<h2><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> Confirmar Eliminación</h2>' +
-            '</div>' +
-            '<div class="modal-body">' +
-                '<p style="margin-bottom: 16px;">¿Está seguro de que desea eliminar este evento?</p>' +
-                '<div style="background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid var(--danger-color);">' +
-                    '<strong>Evento:</strong> ' + event.nombreEvento + '<br>' +
-                    '<strong>Operador:</strong> ' + event.operador + '<br>' +
-                    '<strong>Fecha:</strong> ' + formatDate(event.fechaInicio) +
-                '</div>' +
-                '<p style="margin-top: 16px; color: var(--danger-color); font-weight: 500;">' +
-                    '<i class="fas fa-warning"></i> Esta acción no se puede deshacer.' +
-                '</p>' +
-            '</div>' +
-            '<div class="modal-footer">' +
-                '<button type="button" class="btn btn-secondary" id="cancelDelete">Cancelar</button>' +
-                '<button type="button" class="btn btn-danger" id="confirmDelete">' +
-                    '<i class="fas fa-trash"></i> Eliminar Evento' +
-                '</button>' +
-            '</div>' +
-        '</div>';
+    confirmModal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> Confirmar Eliminación</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px;">¿Está seguro de que desea eliminar este evento?</p>
+                <div style="background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid var(--danger-color);">
+                    <strong>Evento:</strong> ${event.nombreEvento}<br>
+                    <strong>Operador:</strong> ${event.operador}<br>
+                    <strong>Fecha:</strong> ${formatDate(event.fechaInicio)}
+                </div>
+                <p style="margin-top: 16px; color: var(--danger-color); font-weight: 500;">
+                    <i class="fas fa-warning"></i> Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelDelete">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash"></i> Eliminar Evento
+                </button>
+            </div>
+        </div>
+    `;
 
     document.body.appendChild(confirmModal);
     document.body.style.overflow = 'hidden';
@@ -417,7 +331,7 @@ async function deleteEvent(eventId) {
         document.body.style.overflow = 'auto';
     };
 
-    confirmBtn.onclick = async () => {
+            confirmBtn.onclick = async () => {
         try {
             confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
             confirmBtn.disabled = true;
@@ -470,7 +384,7 @@ function renderPagination() {
     
     // Previous button
     const prevBtn = document.createElement('button');
-    prevBtn.className = 'btn btn-sm ' + (currentPage === 1 ? 'btn-disabled' : 'btn-secondary');
+    prevBtn.className = `btn btn-sm ${currentPage === 1 ? 'btn-disabled' : 'btn-secondary'}`;
     prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
     prevBtn.disabled = currentPage === 1;
     prevBtn.onclick = () => changePage(currentPage - 1);
@@ -509,7 +423,7 @@ function renderPagination() {
     
     // Next button
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'btn btn-sm ' + (currentPage === totalPages ? 'btn-disabled' : 'btn-secondary');
+    nextBtn.className = `btn btn-sm ${currentPage === totalPages ? 'btn-disabled' : 'btn-secondary'}`;
     nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
     nextBtn.disabled = currentPage === totalPages;
     nextBtn.onclick = () => changePage(currentPage + 1);
@@ -518,9 +432,10 @@ function renderPagination() {
     // Page info
     const pageInfo = document.createElement('div');
     pageInfo.className = 'pagination-info';
-    pageInfo.innerHTML = 
-        'Página ' + currentPage + ' de ' + totalPages + 
-        ' (' + filteredEvents.length + ' eventos)';
+    pageInfo.innerHTML = `
+        Página ${currentPage} de ${totalPages} 
+        (${filteredEvents.length} eventos)
+    `;
     
     elements.pagination.appendChild(paginationContainer);
     elements.pagination.appendChild(pageInfo);
@@ -529,7 +444,7 @@ function renderPagination() {
 // Create page button
 function createPageButton(pageNum) {
     const btn = document.createElement('button');
-    btn.className = 'btn btn-sm ' + (pageNum === currentPage ? 'btn-primary' : 'btn-secondary');
+    btn.className = `btn btn-sm ${pageNum === currentPage ? 'btn-primary' : 'btn-secondary'}`;
     btn.textContent = pageNum;
     btn.onclick = () => changePage(pageNum);
     return btn;
@@ -584,14 +499,12 @@ function editEvent(eventId, readOnly = false) {
 
     editingEventId = eventId;
     isReadOnly = readOnly;
-    
-    const iconClass = readOnly ? 'eye' : 'edit';
-    const titleText = readOnly ? 'Ver Detalles del Evento' : 'Editar Evento';
-    document.querySelector('#editModal .modal-header h2').innerHTML = 
-        '<i class="fas fa-' + iconClass + '"></i> ' + titleText;
+    document.querySelector('#editModal .modal-header h2').innerHTML = `
+        <i class="fas fa-${readOnly ? 'eye' : 'edit'}"></i> ${readOnly ? 'Ver Detalles del Evento' : 'Editar Evento'}
+    `;
 
-    // CAMBIO PRINCIPAL: Rellenar folio con numeroEvento
-    document.getElementById('editFolio').value = event.numeroEvento || event.folio || '';
+    // Rellenar campos básicos
+    document.getElementById('editFolio').value = event.folio || '';
     document.getElementById('editNombreEvento').value = event.nombreEvento || '';
     document.getElementById('editOperador').value = event.operador || '';
     document.getElementById('editFechaInicio').value = formatDateForInput(event.fechaInicio);
@@ -604,20 +517,6 @@ function editEvent(eventId, readOnly = false) {
 
     // Cargar facturas
     loadFacturas(event);
-
-    // Cargar valores manuales si existen
-    if (elements.resumenSubtotalInput) {
-        elements.resumenSubtotalInput.value = event.subtotalManual || 0;
-    }
-    if (elements.resumenIVAInput) {
-        elements.resumenIVAInput.value = event.ivaManual || 0;
-    }
-    if (elements.resumenProgramaLealtadInput) {
-        elements.resumenProgramaLealtadInput.value = event.programaLealtadManual || 0;
-    }
-    if (elements.resumenProveedoresInput) {
-        elements.resumenProveedoresInput.value = event.proveedoresManual || 0;
-    }
 
     // Deshabilitar campos si es modo solo lectura
     if (readOnly) {
@@ -640,9 +539,6 @@ function editEvent(eventId, readOnly = false) {
     // Mostrar/ocultar botones según modo
     elements.saveEvent.style.display = readOnly ? 'none' : 'inline-block';
     elements.cancelEdit.textContent = readOnly ? 'Cerrar' : 'Cancelar';
-
-    // Actualizar resumen financiero
-    updateResumenFinanciero();
 
     // Mostrar modal
     elements.editModal.style.display = 'flex';
@@ -677,13 +573,13 @@ function loadFacturas(event) {
     }
 }
 
-// Función modificada para crear las tarjetas de factura en formato compacto
+// Agregar nueva tarjeta de factura
 function addFacturaCard(facturaData = null) {
     const container = document.getElementById('facturasContainer');
     const facturaId = facturaCounter++;
     
     const facturaCard = document.createElement('div');
-    facturaCard.className = 'factura-card compact';
+    facturaCard.className = 'factura-card';
     facturaCard.setAttribute('data-factura-id', facturaId);
     
     const factura = facturaData || {
@@ -697,59 +593,62 @@ function addFacturaCard(facturaData = null) {
         comentarios: ''
     };
     
-    facturaCard.innerHTML = 
-        '<div class="factura-card-header compact">' +
-            '<div class="factura-title">' +
-                '<i class="fas fa-file-invoice-dollar"></i>' +
-                'Factura #' + facturaId +
-            '</div>' +
-            '<button type="button" class="btn-remove-factura compact" onclick="removeFacturaCard(' + facturaId + ')">' +
-                '<i class="fas fa-trash"></i>' +
-            '</button>' +
-        '</div>' +
+    facturaCard.innerHTML = `
+        <div class="factura-card-header">
+            <div class="factura-title">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Factura #${facturaId}
+            </div>
+            <button type="button" class="btn-remove-factura" onclick="removeFacturaCard(${facturaId})">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
         
-        '<div class="factura-row-compact">' +
-            '<div class="factura-field">' +
-                '<label>Fecha</label>' +
-                '<input type="date" class="form-input compact factura-fecha" value="' + factura.fecha + '" data-field="fecha">' +
-            '</div>' +
+        <div class="factura-grid">
+            <div class="factura-form-group">
+                <label>Fecha de Factura</label>
+                <input type="date" class="form-input factura-fecha" value="${factura.fecha}" data-field="fecha">
+            </div>
             
-            '<div class="factura-field">' +
-                '<label>No. Factura</label>' +
-                '<input type="text" class="form-input compact factura-numero" placeholder="Número" value="' + factura.numeroFactura + '" data-field="numeroFactura">' +
-            '</div>' +
+            <div class="factura-form-group">
+                <label>No. Factura</label>
+                <input type="text" class="form-input factura-numero" placeholder="Número de factura" value="${factura.numeroFactura}" data-field="numeroFactura">
+            </div>
             
-            '<div class="factura-field">' +
-                '<label>Subtotal</label>' +
-                '<input type="number" class="form-input compact factura-subtotal" placeholder="0.00" step="0.01" value="' + factura.subtotal + '" data-field="subtotal">' +
-            '</div>' +
+            <div class="factura-form-group">
+                <label>Subtotal</label>
+                <div class="currency-input">
+                    <input type="number" class="form-input factura-subtotal" placeholder="0.00" step="0.01" value="${factura.subtotal}" data-field="subtotal">
+                </div>
+            </div>
             
-            '<div class="factura-field">' +
-                '<label>IVA (%)</label>' +
-                '<input type="number" class="form-input compact factura-iva" placeholder="0" step="0.01" value="' + factura.iva + '" data-field="iva">' +
-            '</div>' +
+            <div class="factura-form-group">
+                <label>IVA (%)</label>
+                <input type="number" class="form-input factura-iva" placeholder="0" step="0.01" value="${factura.iva}" data-field="iva">
+            </div>
             
-            '<div class="factura-field">' +
-                '<label>Total</label>' +
-                '<div class="total-display compact factura-total" data-field="total">$' + formatNumber(factura.total) + '</div>' +
-            '</div>' +
-            
-            '<div class="factura-field checkboxes">' +
-                '<div class="checkbox-compact">' +
-                    '<input type="checkbox" class="factura-sin-pagar" ' + (factura.sinPagar ? 'checked' : '') + ' data-field="sinPagar">' +
-                    '<label>Sin Pagar</label>' +
-                '</div>' +
-                '<div class="checkbox-compact">' +
-                    '<input type="checkbox" class="factura-pagado" ' + (factura.pagado ? 'checked' : '') + ' data-field="pagado">' +
-                    '<label>Pagado</label>' +
-                '</div>' +
-            '</div>' +
-            
-            '<div class="factura-field comentarios-field">' +
-                '<label>Comentarios</label>' +
-                '<input type="text" class="form-input compact factura-comentarios" placeholder="Comentarios..." value="' + factura.comentarios + '" data-field="comentarios">' +
-            '</div>' +
-        '</div>';
+            <div class="factura-form-group">
+                <label>Total</label>
+                <div class="total-display factura-total" data-field="total">${formatNumber(factura.total)}</div>
+            </div>
+        </div>
+        
+        <div class="estado-checkboxes">
+            <div class="checkbox-group sin-pagar">
+                <input type="checkbox" class="factura-sin-pagar" ${factura.sinPagar ? 'checked' : ''} data-field="sinPagar">
+                <label>Sin Pagar</label>
+            </div>
+            <div class="checkbox-group pagado">
+                <input type="checkbox" class="factura-pagado" ${factura.pagado ? 'checked' : ''} data-field="pagado">
+                <label>Pagado</label>
+            </div>
+        </div>
+        
+        <div class="factura-form-group full-width">
+            <label>Comentarios</label>
+            <textarea class="form-textarea factura-comentarios" rows="2" placeholder="Comentarios adicionales..." data-field="comentarios">${factura.comentarios}</textarea>
+        </div>
+    `;
     
     container.appendChild(facturaCard);
     
@@ -758,9 +657,6 @@ function addFacturaCard(facturaData = null) {
     
     // Actualizar visibilidad del botón eliminar
     updateRemoveButtonsVisibility();
-    
-    // Actualizar resumen financiero
-    updateResumenFinanciero();
 }
 
 // Configurar event listeners para una tarjeta de factura
@@ -771,45 +667,39 @@ function setupFacturaEventListeners(facturaCard) {
     const sinPagarCheckbox = facturaCard.querySelector('.factura-sin-pagar');
     const pagadoCheckbox = facturaCard.querySelector('.factura-pagado');
     
+    // Calcular total cuando cambie subtotal o IVA
     function calcularTotal() {
         const subtotal = parseFloat(subtotalInput.value) || 0;
         const iva = parseFloat(ivaInput.value) || 0;
         const total = subtotal + (subtotal * iva / 100);
-        totalDisplay.textContent = '$' + formatNumber(total);
-        updateResumenFinanciero();
+        totalDisplay.textContent = `${formatNumber(total)}`;
     }
     
     subtotalInput.addEventListener('input', calcularTotal);
     ivaInput.addEventListener('input', calcularTotal);
     
-    if (sinPagarCheckbox) {
-        sinPagarCheckbox.addEventListener('change', function() {
-            if (this.checked && pagadoCheckbox) {
-                pagadoCheckbox.checked = false;
-            }
-            updateResumenFinanciero();
-        });
-    }
+    // Lógica de checkboxes mutuamente excluyentes
+    sinPagarCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            pagadoCheckbox.checked = false;
+        }
+    });
     
-    if (pagadoCheckbox) {
-        pagadoCheckbox.addEventListener('change', function() {
-            if (this.checked && sinPagarCheckbox) {
-                sinPagarCheckbox.checked = false;
-            }
-            updateResumenFinanciero();
-        });
-    }
+    pagadoCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            sinPagarCheckbox.checked = false;
+        }
+    });
 }
 
 // Eliminar tarjeta de factura
 function removeFacturaCard(facturaId) {
     const container = document.getElementById('facturasContainer');
-    const facturaCard = container.querySelector('[data-factura-id="' + facturaId + '"]');
+    const facturaCard = container.querySelector(`[data-factura-id="${facturaId}"]`);
     
     if (facturaCard && container.children.length > 1) {
         facturaCard.remove();
         updateRemoveButtonsVisibility();
-        updateResumenFinanciero();
     } else if (container.children.length <= 1) {
         showNotification('Debe mantener al menos una factura', 'warning');
     }
@@ -838,6 +728,7 @@ function collectFacturasData() {
     facturaCards.forEach(card => {
         const factura = {};
         
+        // Recopilar todos los campos
         card.querySelectorAll('[data-field]').forEach(input => {
             const field = input.getAttribute('data-field');
             
@@ -846,7 +737,8 @@ function collectFacturasData() {
             } else if (input.type === 'number') {
                 factura[field] = parseFloat(input.value) || 0;
             } else if (field === 'total') {
-                const totalText = input.textContent?.replace(/[\$,]/g, '') || '0';
+                // Para el total, extraer el número del texto
+                const totalText = input.textContent.replace(', '').replace(/,/g, '');
                 factura[field] = parseFloat(totalText) || 0;
             } else {
                 factura[field] = input.value.trim();
@@ -867,8 +759,7 @@ async function saveEventChanges() {
         const facturas = collectFacturasData();
         
         const formData = {
-            // CAMBIO PRINCIPAL: Guardar en numeroEvento en lugar de folio
-            numeroEvento: document.getElementById('editFolio').value.trim(),
+            folio: document.getElementById('editFolio').value.trim(),
             nombreEvento: document.getElementById('editNombreEvento').value.trim(),
             operador: document.getElementById('editOperador').value.trim(),
             fechaInicio: new Date(document.getElementById('editFechaInicio').value),
@@ -876,16 +767,12 @@ async function saveEventChanges() {
             zona: document.getElementById('editZona').value.trim(),
             ciudad: document.getElementById('editCiudad').value.trim(),
             tieneOrdenSRE: document.getElementById('editTieneOrdenSRE').value === 'true',
-            subtotalManual: parseFloat(elements.resumenSubtotalInput.value) || 0,
-            ivaManual: parseFloat(elements.resumenIVAInput.value) || 0,
-            programaLealtadManual: parseFloat(elements.resumenProgramaLealtadInput.value) || 0,
-            proveedoresManual: parseFloat(elements.resumenProveedoresInput.value) || 0,
             
             facturas: facturas,
             
-            numeroFactura: facturas[0] ? facturas[0].numeroFactura || '' : '',
-            subtotal: facturas[0] ? facturas[0].subtotal || 0 : 0,
-            iva: facturas[0] ? facturas[0].iva || 0 : 0,
+            numeroFactura: facturas[0]?.numeroFactura || '',
+            subtotal: facturas[0]?.subtotal || 0,
+            iva: facturas[0]?.iva || 0,
             total: facturas.reduce((sum, f) => sum + f.total, 0),
             
             carpetaAuditoria: document.getElementById('editCarpetaAuditoria').value.trim(),
@@ -905,7 +792,7 @@ async function saveEventChanges() {
         
         const eventIndex = allEvents.findIndex(e => e.id === editingEventId);
         if (eventIndex !== -1) {
-            allEvents[eventIndex] = Object.assign(allEvents[eventIndex], formData);
+            allEvents[eventIndex] = { ...allEvents[eventIndex], ...formData };
         }
         
         applyFilters();
@@ -976,7 +863,7 @@ function formatDateForInput(date) {
 }
 
 function formatNumber(number) {
-    return new Intl.NumberFormat('es-US', {
+    return new Intl.NumberFormat('es-ES', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(number);
@@ -986,24 +873,19 @@ function showLoading(show) {
     elements.loading.style.display = show ? 'flex' : 'none';
 }
 
-function showNotification(message, type) {
-    type = type || 'info';
-    
+function showNotification(message, type = 'info') {
     // Create notification element
     const notification = document.createElement('div');
-    notification.className = 'notification notification-' + type;
-    
-    let iconClass = 'fa-info-circle';
-    if (type === 'success') iconClass = 'fa-check-circle';
-    else if (type === 'error') iconClass = 'fa-exclamation-circle';
-    else if (type === 'warning') iconClass = 'fa-exclamation-triangle';
-    
-    notification.innerHTML = 
-        '<i class="fas ' + iconClass + '"></i>' +
-        '<span>' + message + '</span>' +
-        '<button class="notification-close">' +
-            '<i class="fas fa-times"></i>' +
-        '</button>';
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
     
     // Add to page
     document.body.appendChild(notification);
@@ -1023,8 +905,7 @@ function showNotification(message, type) {
 
 function debounce(func, delay) {
     let timeoutId;
-    return function () {
-        const args = arguments;
+    return function (...args) {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func.apply(this, args), delay);
     };

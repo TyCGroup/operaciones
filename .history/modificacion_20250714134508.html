@@ -1,0 +1,29 @@
+<!-- Filtros -->
+<div class="filters-section">
+    <div class="filters-grid">
+        <div class="filter-group">
+            <label for="searchEvent">Buscar Evento</label>
+            <input type="text" id="searchEvent" placeholder="Nombre del evento...">
+        </div>
+        <div class="filter-group">
+            <label for="searchOperator">Operador</label>
+            <input type="text" id="searchOperator" placeholder="Nombre del operador...">
+        </div>
+        <div class="filter-group">
+            <label for="dateRange">Rango de Fechas</label>
+            <div class="date-range">
+                <input type="date" id="dateFrom">
+                <span>hasta</span>
+                <input type="date" id="dateTo">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-secondary" id="clearFilters">
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+            <button class="btn btn-primary" id="applyFilters">
+                <i class="fas fa-search"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>

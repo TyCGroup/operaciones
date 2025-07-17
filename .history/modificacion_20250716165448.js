@@ -363,6 +363,9 @@ function updateResumenFinanciero() {
     if (elements.resumenPendiente) {
         elements.resumenPendiente.textContent = '$' + formatNumber(Math.max(0, pendientePorFacturar));
     }
+    if (elements.resumenUtilidadTotal) {
+        elements.resumenUtilidadTotal.textContent = '$' + formatNumber(utilidadTotal);
+    }
     if (elements.resumenUtilidadFinal) {
         elements.resumenUtilidadFinal.textContent = 
             '$' + formatNumber(utilidadTotal) + ' (' + utilidadPorcentaje.toFixed(1) + '%)';

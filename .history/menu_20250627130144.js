@@ -74,9 +74,9 @@ function handleMenuNavigation(index) {
             url: 'nuevo-evento.html',
             action: () => navigateToPage('nuevo-evento.html')
         },
-         {
+        {
             name: 'Modificación de Evento',
-            url: 'modificacion.html',  // Cambiado de 'modificacion.html'
+            url: 'modificacion.html',
             action: () => navigateToPage('modificacion.html')
         },
         {
@@ -116,7 +116,7 @@ function handleMenuNavigation(index) {
 
 // Navigate to page function
 function navigateToPage(url) {
-    const comingSoonPages = ['reportes.html', 'dashboard.html'];
+    const comingSoonPages = ['nuevo-evento.html', 'modificar-evento.html', 'reportes.html', 'dashboard.html'];
     
     if (comingSoonPages.includes(url)) {
         showComingSoon(url);

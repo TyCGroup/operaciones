@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Eventos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="nuevo-evento.css">
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Header -->
+            <!-- Header con botón de volver -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Registro de Evento</h1>
+                    <p class="text-blue-100 mt-1">Complete la información del evento institucional</p>
+                </div>
+                <a href="menu.html" class="btn-secondary bg-white text-blue-700 hover:bg-gray-100 transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Volver al Menú
+                </a>
+            </div>
+
+            <!-- Form -->
+            <form id="eventForm" class="p-8 space-y-8">
+                <!-- Información General -->
+                <div class="form-section">
+                    <h2 class="section-title">Información General</h2>                    
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="numeroEvento" class="form-label">Número de Evento</label>
+                            <input type="text" id="numeroEvento" name="numeroEvento" class="form-input" placeholder="Ej: 001" required>
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="form-label">Rango de Fechas</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <div class="flex-1">
+                                <label for="fechaInicio" class="block text-sm text-gray-500 mb-1">Inicio</label>
+                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-input w-full" required>
+                                </div>
+                                <div class="flex-1">
+                                <label for="fechaFinal" class="block text-sm text-gray-500 mb-1">Final</label>
+                                <input type="date" id="fechaFinal" name="fechaFinal" class="form-input w-full" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group md:col-span-2">
+                            <label for="nombreEvento" class="form-label">Nombre del Evento</label>
+                            <input type="text" id="nombreEvento" name="nombreEvento" class="form-input" placeholder="Ej: XXXVI REUNION DE TITULARES DE EMBAJADAS Y CONSULADOS 2025 " required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="zona" class="form-label">Zona</label>
+                            <select id="zona" name="zona" class="form-select" required>
+                                <option value="">Seleccione una zona</option>
+                                <option value="zona1">Zona 1</option>
+                                <option value="zona2">Zona 2</option>
+                                <option value="zona3">Zona 3</option>
+                                <option value="zona4">Zona 4</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="operador" class="form-label">
+                                Operador
+                                <button type="button" onclick="refreshUsuarios()" class="ml-2 text-blue-600 hover:text-blue-800 text-sm" title="Recargar usuarios">
+                                    <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </button>
+                            </label>
+                            <select id="operador" name="operador" class="form-select" required>
+                                <option value="">Cargando usuarios...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="tieneOrdenSRE" name="tieneOrdenSRE" class="form-checkbox">
+                                <label for="tieneOrdenSRE" class="ml-3 text-sm font-medium text-gray-700">
+                                    Tiene orden de servicio SRE
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="folioContainer" class="form-group md:col-span-2 hidden">
+                            <label for="folio" class="form-label">Folio</label>
+                            <input type="text" id="folio" name="folio" class="form-input" placeholder="Número de folio">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos Financieros -->
+                <div class="form-section">
+                    <h2 class="section-title">Datos Financieros</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="subtotal" class="form-label">Subtotal</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                <input type="number" id="subtotal" name="subtotal" class="form-input pl-8" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="iva" class="form-label">IVA</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                <input type="number" id="iva" name="iva" class="form-input pl-8" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="total" class="form-label">Total</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                <input type="number" id="total" name="total" class="form-input pl-8" placeholder="0.00" step="0.01" min="0" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Facturación -->
+                <div class="form-section">
+                    <h2 class="section-title">Información de Facturación</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="numeroFactura" class="form-label">Número de Factura</label>
+                            <input type="text" id="numeroFactura" name="numeroFactura" class="form-input" placeholder="Ej: FAC-2024-001">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="montoPendienteFacturar" class="form-label">Monto Pendiente por Facturar</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                <input type="number" id="montoPendienteFacturar" name="montoPendienteFacturar" class="form-input pl-8" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="montoFacturadoNoPagado" class="form-label">Monto Facturado No Pagado</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                <input type="number" id="montoFacturadoNoPagado" name="montoFacturadoNoPagado" class="form-input pl-8" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="montoFacturadoPagado" class="form-label">Monto Facturado Pagado</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                <input type="number" id="montoFacturadoPagado" name="montoFacturadoPagado" class="form-input pl-8" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información Administrativa -->
+                <div class="form-section">
+                    <h2 class="section-title">Información Administrativa</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="carpetaAuditoria" class="form-label">Carpeta Entregada Auditoría</label>
+                            <select id="carpetaAuditoria" name="carpetaAuditoria" class="form-select">
+                                <option value="">Seleccione el estado</option>
+                                <option value="auditoria">Auditoría</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="completado">Completado</option>
+                                <option value="en_revision">En Revisión</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea id="observaciones" name="observaciones" rows="4" class="form-textarea" placeholder="Ingrese observaciones adicionales..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                    <button type="submit" class="btn-primary">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Guardar Evento
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="resetForm()">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="nuevo-evento.js"></script>
+</body>
+</html>

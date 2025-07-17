@@ -1040,6 +1040,15 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.factura-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
 .factura-title {
     font-weight: 600;
     color: #1f2937;
@@ -1074,21 +1083,36 @@ body {
 
 .factura-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
+    grid-template-columns: 120px 100px 100px 80px 100px 180px 200px;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
-.factura-form-group {
+.factura-form-group input,
+.factura-form-group textarea {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+.estado-checkboxes {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
 }
 
-.factura-form-group label {
-    font-weight: 500;
-    color: #374151;
-    font-size: 14px;
+.checkbox-group label {
+    font-size: 12px;
+}
+
+.factura-form-group textarea {
+    resize: none;
+    min-height: 36px;
+    height: 36px;
 }
 
 .factura-form-group input,
@@ -1112,12 +1136,6 @@ body {
 
 .factura-form-group.full-width {
     grid-column: 1 / -1;
-}
-
-.factura-form-group.full-width textarea {
-    height: 50px; /* Hacer más pequeño */
-    resize: vertical;
-    font-size: 14px; /* Opcional: hacer la fuente un poco más pequeña */
 }
 
 .currency-input {
@@ -1253,10 +1271,7 @@ body {
     }
     
     .factura-grid {
-        display: grid;
-        grid-template-columns: 1fr 0.8fr 1fr 0.6fr 1fr; /* No. Factura más pequeño, IVA más pequeño */
-        gap: 12px; /* Reducir de 16px a 12px */
-        margin-bottom: 12px; /* Reducir de 16px a 12px */
+        grid-template-columns: 1fr 1fr;
     }
         
     .modal-content {
@@ -1277,13 +1292,8 @@ body {
     }
     
     .estado-checkboxes {
-        display: flex;
-        gap: 16px; /* Reducir de 24px a 16px */
-        margin-bottom: 12px; /* Reducir de 16px a 12px */
-        padding: 12px; /* Reducir de 16px a 12px */
-        background: #f9fafb;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        flex-direction: column;
+        gap: 12px;
     }
     
     .dynamic-header {
@@ -1338,429 +1348,5 @@ body {
     .resumen-value-total,
     .estado-value {
         font-size: 16px;
-    }
-}
-
-/* Estilos para el diseño compacto de facturas */
-
-/* Header compacto */
-.factura-card-header.compact {
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-radius: 6px 6px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.factura-card-header.compact .factura-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #495057;
-}
-
-.btn-remove-factura.compact {
-    padding: 4px 8px;
-    font-size: 12px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.btn-remove-factura.compact:hover {
-    background: #c82333;
-}
-
-/* Fila compacta principal */
-.factura-row-compact {
-    display: flex;
-    align-items: end;
-    gap: 12px;
-    padding: 12px;
-    flex-wrap: wrap;
-}
-
-/* Campos individuales */
-.factura-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.factura-field label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #6c757d;
-    margin: 0;
-}
-
-/* Inputs compactos */
-.form-input.compact {
-    height: 32px;
-    padding: 4px 8px;
-    font-size: 13px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background: white;
-}
-
-.form-input.compact:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-/* Tamaños específicos para cada campo */
-.factura-field:nth-child(1) { /* Fecha */
-    min-width: 130px;
-}
-
-.factura-field:nth-child(2) { /* No. Factura */
-    min-width: 100px;
-}
-
-.factura-field:nth-child(3) { /* Subtotal */
-    min-width: 90px;
-}
-
-.factura-field:nth-child(4) { /* IVA */
-    min-width: 70px;
-}
-
-.factura-field:nth-child(5) { /* Total */
-    min-width: 90px;
-}
-
-.factura-field:nth-child(6) { /* Checkboxes */
-    min-width: 140px;
-}
-
-.factura-field:nth-child(7) { /* Comentarios */
-    flex: 1;
-    min-width: 200px;
-}
-
-/* Display del total */
-.total-display.compact {
-    height: 32px;
-    padding: 4px 8px;
-    background: #e9ecef;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    font-weight: 600;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    font-size: 13px;
-}
-
-/* Checkboxes compactos */
-.factura-field.checkboxes {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.checkbox-compact {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.checkbox-compact input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-}
-
-.checkbox-compact label {
-    font-size: 12px;
-    margin: 0;
-    cursor: pointer;
-}
-
-/* Campo de comentarios */
-.comentarios-field .form-input.compact {
-    min-width: 200px;
-}
-
-/* Responsividad */
-@media (max-width: 1200px) {
-    .factura-row-compact {
-        flex-wrap: wrap;
-    }
-    
-    .factura-field:nth-child(7) { /* Comentarios en nueva línea */
-        width: 100%;
-        margin-top: 8px;
-    }
-}
-
-@media (max-width: 768px) {
-    .factura-row-compact {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .factura-field {
-        width: 100%;
-    }
-    
-    .factura-field.checkboxes {
-        flex-direction: row;
-        gap: 16px;
-    }
-}
-
-/* Nuevo diseño del resumen */
-.resumen-section-new {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-}
-
-.resumen-title-new {
-    font-size: 16px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-/* Primera fila - Inputs principales */
-.resumen-inputs-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 2fr;
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.input-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-}
-
-.input-card label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-}
-
-.input-clean {
-    width: 100%;
-    border: none;
-    background: transparent;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
-    color: #374151;
-    outline: none;
-    padding: 4px;
-}
-
-.total-card {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-}
-
-.total-card label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    opacity: 0.9;
-}
-
-.total-amount {
-    font-size: 24px;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
-}
-
-/* Segunda fila - Estados */
-.estados-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.estado-card {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-left: 4px solid;
-}
-
-.estado-card.pagado {
-    border-left-color: #10b981;
-    background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
-}
-
-.estado-card.sin-pagar {
-    border-left-color: #ef4444;
-    background: linear-gradient(135deg, #fef2f2 0%, white 100%);
-}
-
-.estado-card.pendiente {
-    border-left-color: #f59e0b;
-    background: linear-gradient(135deg, #fffbeb 0%, white 100%);
-}
-
-.estado-card.utilidad {
-    border-left-color: #8b5cf6;
-    background: linear-gradient(135deg, #faf5ff 0%, white 100%);
-}
-
-.estado-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.estado-card.pagado .estado-icon {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.estado-card.sin-pagar .estado-icon {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.estado-card.pendiente .estado-icon {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.estado-content {
-    flex: 1;
-}
-
-.estado-content label {
-    display: block;
-    font-size: 10px;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-}
-
-.estado-amount {
-    font-size: 16px;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
-}
-
-.estado-card.pagado .estado-amount {
-    color: #047857;
-}
-
-.estado-card.sin-pagar .estado-amount {
-    color: #dc2626;
-}
-
-.estado-card.pendiente .estado-amount {
-    color: #d97706;
-}
-
-.estado-card.utilidad .estado-amount {
-    color: #7c3aed;
-}
-
-/* Tercera fila - Gastos */
-.gastos-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 2fr;
-    gap: 16px;
-}
-
-.gasto-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-}
-
-.gasto-card label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 8px;
-}
-
-.utilidad-final-card {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-}
-
-.utilidad-final-card label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: 8px;
-    opacity: 0.9;
-}
-
-.utilidad-amount {
-    font-size: 18px;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
-}
-
-/* Responsividad */
-@media (max-width: 1024px) {
-    .resumen-inputs-row,
-    .gastos-row {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .estados-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .resumen-inputs-row,
-    .estados-row,
-    .gastos-row {
-        grid-template-columns: 1fr;
     }
 }

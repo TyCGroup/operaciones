@@ -52,6 +52,7 @@ const elements = {
     // Nuevos elementos del resumen
     resumenProgramaLealtadInput: document.getElementById('resumenProgramaLealtadInput'),
     resumenProveedoresInput: document.getElementById('resumenProveedoresInput'),
+    resumenUtilidadTotal: document.getElementById('resumenUtilidadTotal'),
     resumenUtilidadFinal: document.getElementById('resumenUtilidadFinal')
 };
 
@@ -362,6 +363,9 @@ function updateResumenFinanciero() {
     }
     if (elements.resumenPendiente) {
         elements.resumenPendiente.textContent = '$' + formatNumber(Math.max(0, pendientePorFacturar));
+    }
+    if (elements.resumenUtilidadTotal) {
+        elements.resumenUtilidadTotal.textContent = '$' + formatNumber(utilidadTotal);
     }
     if (elements.resumenUtilidadFinal) {
         elements.resumenUtilidadFinal.textContent = 

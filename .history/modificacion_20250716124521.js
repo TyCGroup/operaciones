@@ -47,12 +47,7 @@ const elements = {
     resumenTotalEvento: document.getElementById('resumenTotalEvento'),
     resumenPagado: document.getElementById('resumenPagado'),
     resumenSinPagar: document.getElementById('resumenSinPagar'),
-    resumenPendiente: document.getElementById('resumenPendiente'),
-    
-    // Nuevos elementos del resumen
-    resumenProgramaLealtadInput: document.getElementById('resumenProgramaLealtadInput'),
-    resumenProveedoresInput: document.getElementById('resumenProveedoresInput'),
-    resumenUtilidadFinal: document.getElementById('resumenUtilidadFinal')
+    resumenPendiente: document.getElementById('resumenPendiente')
 };
 
 // Initialize the application
@@ -73,19 +68,12 @@ async function initializeApp() {
         showLoading(false);
     }
     await loadOperatorOptions();
-    
     // Event listeners para resumen manual
     if (elements.resumenSubtotalInput) {
         elements.resumenSubtotalInput.addEventListener('input', updateResumenFinanciero);
     }
     if (elements.resumenIVAInput) {
         elements.resumenIVAInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenProgramaLealtadInput) {
-        elements.resumenProgramaLealtadInput.addEventListener('input', updateResumenFinanciero);
-    }
-    if (elements.resumenProveedoresInput) {
-        elements.resumenProveedoresInput.addEventListener('input', updateResumenFinanciero);
     }
 }
 
@@ -326,8 +314,6 @@ function updateResumenFinanciero() {
     // Obtener valores manuales
     const subtotalManual = parseFloat(elements.resumenSubtotalInput.value) || 0;
     const ivaManual = parseFloat(elements.resumenIVAInput.value) || 0;
-    const programaLealtad = parseFloat(elements.resumenProgramaLealtadInput.value) || 0;
-    const proveedores = parseFloat(elements.resumenProveedoresInput.value) || 0;
     
     // Calcular totales de facturas
     let totalPagado = 0;
@@ -346,10 +332,6 @@ function updateResumenFinanciero() {
     const totalEvento = subtotalManual + ivaManual;
     const pendientePorFacturar = totalEvento - totalPagado - totalSinPagar;
     
-    // Calcular utilidad total
-    const utilidadTotal = totalEvento - programaLealtad - proveedores;
-    const utilidadPorcentaje = totalEvento > 0 ? (utilidadTotal / totalEvento) * 100 : 0;
-    
     // Actualizar elementos del DOM
     if (elements.resumenTotalEvento) {
         elements.resumenTotalEvento.textContent = '$' + formatNumber(totalEvento);
@@ -362,10 +344,6 @@ function updateResumenFinanciero() {
     }
     if (elements.resumenPendiente) {
         elements.resumenPendiente.textContent = '$' + formatNumber(Math.max(0, pendientePorFacturar));
-    }
-    if (elements.resumenUtilidadFinal) {
-        elements.resumenUtilidadFinal.textContent = 
-            '$' + formatNumber(utilidadTotal) + ' (' + utilidadPorcentaje.toFixed(1) + '%)';
     }
 }
 
@@ -574,7 +552,6 @@ function updateFilteredStats() {
     }
 }
 
-// Edit event
 function editEvent(eventId, readOnly = false) {
     const event = allEvents.find(e => e.id === eventId);
     if (!event) {
@@ -590,7 +567,7 @@ function editEvent(eventId, readOnly = false) {
     document.querySelector('#editModal .modal-header h2').innerHTML = 
         '<i class="fas fa-' + iconClass + '"></i> ' + titleText;
 
-    // CAMBIO PRINCIPAL: Rellenar folio con numeroEvento
+    // Rellenar campos del evento
     document.getElementById('editFolio').value = event.numeroEvento || event.folio || '';
     document.getElementById('editNombreEvento').value = event.nombreEvento || '';
     document.getElementById('editOperador').value = event.operador || '';
@@ -602,22 +579,16 @@ function editEvent(eventId, readOnly = false) {
     document.getElementById('editCarpetaAuditoria').value = event.carpetaAuditoria || '';
     document.getElementById('editObservaciones').value = event.observaciones || '';
 
-    // Cargar facturas
-    loadFacturas(event);
-
-    // Cargar valores manuales si existen
+    // Cargar valores manuales ANTES de cargar facturas
     if (elements.resumenSubtotalInput) {
         elements.resumenSubtotalInput.value = event.subtotalManual || 0;
     }
     if (elements.resumenIVAInput) {
         elements.resumenIVAInput.value = event.ivaManual || 0;
     }
-    if (elements.resumenProgramaLealtadInput) {
-        elements.resumenProgramaLealtadInput.value = event.programaLealtadManual || 0;
-    }
-    if (elements.resumenProveedoresInput) {
-        elements.resumenProveedoresInput.value = event.proveedoresManual || 0;
-    }
+
+    // Cargar facturas (esto incluye la actualización del resumen)
+    loadFacturas(event);
 
     // Deshabilitar campos si es modo solo lectura
     if (readOnly) {
@@ -641,15 +612,16 @@ function editEvent(eventId, readOnly = false) {
     elements.saveEvent.style.display = readOnly ? 'none' : 'inline-block';
     elements.cancelEdit.textContent = readOnly ? 'Cerrar' : 'Cancelar';
 
-    // Actualizar resumen financiero
-    updateResumenFinanciero();
-
     // Mostrar modal
     elements.editModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // ASEGURAR que el resumen se actualice después de mostrar el modal
+    setTimeout(() => {
+        updateResumenFinanciero();
+    }, 150);
 }
 
-// Cargar facturas en el modal
 function loadFacturas(event) {
     const container = document.getElementById('facturasContainer');
     container.innerHTML = '';
@@ -675,9 +647,13 @@ function loadFacturas(event) {
         };
         addFacturaCard(facturaData);
     }
+    
+    // IMPORTANTE: Actualizar el resumen después de cargar todas las facturas
+    setTimeout(() => {
+        updateResumenFinanciero();
+    }, 100);
 }
 
-// Función modificada para crear las tarjetas de factura en formato compacto
 function addFacturaCard(facturaData = null) {
     const container = document.getElementById('facturasContainer');
     const facturaId = facturaCounter++;
@@ -759,8 +735,8 @@ function addFacturaCard(facturaData = null) {
     // Actualizar visibilidad del botón eliminar
     updateRemoveButtonsVisibility();
     
-    // Actualizar resumen financiero
-    updateResumenFinanciero();
+    // NO llamar updateResumenFinanciero aquí para evitar múltiples llamadas
+    // Se llamará una vez desde loadFacturas()
 }
 
 // Configurar event listeners para una tarjeta de factura
@@ -775,30 +751,26 @@ function setupFacturaEventListeners(facturaCard) {
         const subtotal = parseFloat(subtotalInput.value) || 0;
         const iva = parseFloat(ivaInput.value) || 0;
         const total = subtotal + (subtotal * iva / 100);
-        totalDisplay.textContent = '$' + formatNumber(total);
+        totalDisplay.textContent = formatNumber(total);
         updateResumenFinanciero();
     }
     
     subtotalInput.addEventListener('input', calcularTotal);
     ivaInput.addEventListener('input', calcularTotal);
     
-    if (sinPagarCheckbox) {
-        sinPagarCheckbox.addEventListener('change', function() {
-            if (this.checked && pagadoCheckbox) {
-                pagadoCheckbox.checked = false;
-            }
-            updateResumenFinanciero();
-        });
-    }
+    sinPagarCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            pagadoCheckbox.checked = false;
+        }
+        updateResumenFinanciero();
+    });
     
-    if (pagadoCheckbox) {
-        pagadoCheckbox.addEventListener('change', function() {
-            if (this.checked && sinPagarCheckbox) {
-                sinPagarCheckbox.checked = false;
-            }
-            updateResumenFinanciero();
-        });
-    }
+    pagadoCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            sinPagarCheckbox.checked = false;
+        }
+        updateResumenFinanciero();
+    });
 }
 
 // Eliminar tarjeta de factura
@@ -846,7 +818,7 @@ function collectFacturasData() {
             } else if (input.type === 'number') {
                 factura[field] = parseFloat(input.value) || 0;
             } else if (field === 'total') {
-                const totalText = input.textContent?.replace(/[\$,]/g, '') || '0';
+                const totalText = input.textContent?.replace(/,/g, '') || '0';
                 factura[field] = parseFloat(totalText) || 0;
             } else {
                 factura[field] = input.value.trim();
@@ -878,8 +850,6 @@ async function saveEventChanges() {
             tieneOrdenSRE: document.getElementById('editTieneOrdenSRE').value === 'true',
             subtotalManual: parseFloat(elements.resumenSubtotalInput.value) || 0,
             ivaManual: parseFloat(elements.resumenIVAInput.value) || 0,
-            programaLealtadManual: parseFloat(elements.resumenProgramaLealtadInput.value) || 0,
-            proveedoresManual: parseFloat(elements.resumenProveedoresInput.value) || 0,
             
             facturas: facturas,
             
@@ -1057,6 +1027,50 @@ async function loadOperatorOptions() {
         console.error('Error cargando operadores:', error);
         select.innerHTML = '<option value="">Error al cargar operadores</option>';
     }
+}
+
+// Función para resetear el resumen financiero
+function resetResumenFinanciero() {
+    if (elements.resumenSubtotalInput) {
+        elements.resumenSubtotalInput.value = 0;
+    }
+    if (elements.resumenIVAInput) {
+        elements.resumenIVAInput.value = 0;
+    }
+    if (elements.resumenTotalEvento) {
+        elements.resumenTotalEvento.textContent = '$0.00';
+    }
+    if (elements.resumenPagado) {
+        elements.resumenPagado.textContent = '$0.00';
+    }
+    if (elements.resumenSinPagar) {
+        elements.resumenSinPagar.textContent = '$0.00';
+    }
+    if (elements.resumenPendiente) {
+        elements.resumenPendiente.textContent = '$0.00';
+    }
+}
+
+// Función closeEditModal modificada
+function closeEditModal() {
+    elements.editModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    editingEventId = null;
+    elements.editEventForm.reset();
+    
+    // Limpiar container de facturas
+    document.getElementById('facturasContainer').innerHTML = '';
+    facturaCounter = 1;
+    
+    // Resetear resumen financiero
+    resetResumenFinanciero();
+    
+    // Restaurar botones
+    const buttons = elements.editModal.querySelectorAll('.btn-add, .btn-remove-factura');
+    buttons.forEach(btn => {
+        btn.style.display = 'flex';
+        btn.disabled = false;
+    });
 }
 
 // Global functions for onclick events

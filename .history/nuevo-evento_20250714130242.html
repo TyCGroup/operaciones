@@ -15,7 +15,7 @@
             <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-white">Registro de Evento</h1>
-                    <p class="text-blue-100 mt-1">Complete la información del evento</p>
+                    <p class="text-blue-100 mt-1">Complete la información del evento institucional</p>
                 </div>
                 <a href="menu.html" class="btn-secondary bg-white text-blue-700 hover:bg-gray-100 transition">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,53 +32,39 @@
                     <h2 class="section-title">Información General</h2>                    
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group md:col-span-2">
-                            <label for="nombreEvento" class="form-label">Nombre del Evento *</label>
-                            <input type="text" id="nombreEvento" name="nombreEvento" class="form-input" placeholder="Ej: XXXVI REUNION DE TITULARES DE EMBAJADAS Y CONSULADOS 2025" required>
-                        </div>
-
                         <div class="form-group">
-                            <label for="numeroEvento" class="form-label">
-                                Número de Evento *
-                                <button type="button" onclick="generateEventNumber()" class="ml-2 text-blue-600 hover:text-blue-800 text-sm" title="Generar número automático">
-                                    <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
-                                </button>
-                                <span id="autoNumberIndicator" class="ml-2 text-xs text-green-600 hidden">Auto-generado</span>
-                            </label>
-                            <input type="text" id="numeroEvento" name="numeroEvento" class="form-input" placeholder="Generando..." required>
-                            <p class="text-xs text-gray-500 mt-1">Se genera automáticamente el consecutivo. Puede editarlo manualmente si es necesario.</p>
+                            <label for="numeroEvento" class="form-label">Número de Evento</label>
+                            <input type="text" id="numeroEvento" name="numeroEvento" class="form-input" placeholder="Ej: 001" required>
                         </div>
                         
                         <div class="form-group md:col-span-2">
-                            <label class="form-label">Fecha del evento</label>
+                            <label class="form-label">Rango de Fechas</label>
                             <div class="flex flex-col sm:flex-row gap-4">
                                 <div class="flex-1">
                                 <label for="fechaInicio" class="block text-sm text-gray-500 mb-1">Inicio</label>
-                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-input w-full">
+                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-input w-full" required>
                                 </div>
                                 <div class="flex-1">
                                 <label for="fechaFinal" class="block text-sm text-gray-500 mb-1">Final</label>
-                                <input type="date" id="fechaFinal" name="fechaFinal" class="form-input w-full">
+                                <input type="date" id="fechaFinal" name="fechaFinal" class="form-input w-full" required>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="form-group md:col-span-2">
+                            <label for="nombreEvento" class="form-label">Nombre del Evento</label>
+                            <input type="text" id="nombreEvento" name="nombreEvento" class="form-input" placeholder="Ej: XXXVI REUNION DE TITULARES DE EMBAJADAS Y CONSULADOS 2025 " required>
                         </div>
                         
                         <div class="form-group">
                             <label for="zona" class="form-label">Zona</label>
-                            <select id="zona" name="zona" class="form-select">
+                            <select id="zona" name="zona" class="form-select" required>
                                 <option value="">Seleccione una zona</option>
-                                <option value="Zona 1">Zona 1</option>
-                                <option value="Zona 2">Zona 2</option>
-                                <option value="Zona 3">Zona 3</option>
-                                <option value="Zona 4">Zona 4</option>
+                                <option value="zona1">Zona 1</option>
+                                <option value="zona2">Zona 2</option>
+                                <option value="zona3">Zona 3</option>
+                                <option value="zona4">Zona 4</option>
                             </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="ciudad" class="form-label">Ciudad</label>
-                            <input type="text" id="ciudad" name="ciudad" class="form-input" placeholder="Ej: Ciudad de México">
                         </div>
                         
                         <div class="form-group">
@@ -90,12 +76,29 @@
                                     </svg>
                                 </button>
                             </label>
-                            <select id="operador" name="operador" class="form-select">
+                            <select id="operador" name="operador" class="form-select" required>
                                 <option value="">Cargando usuarios...</option>
                             </select>
                         </div>
                         
+                        <div class="form-group md:col-span-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="tieneOrdenSRE" name="tieneOrdenSRE" class="form-checkbox">
+                                <label for="tieneOrdenSRE" class="ml-3 text-sm font-medium text-gray-700">
+                                    Tiene orden de servicio SRE
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="folioContainer" class="form-group md:col-span-2 hidden">
+                            <label for="folio" class="form-label">Folio</label>
+                            <input type="text" id="folio" name="folio" class="form-input" placeholder="Número de folio">
+                        </div>
 
+                        <div class="form-group md:col-span-2">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea id="observaciones" name="observaciones" rows="4" class="form-textarea" placeholder="Ingrese observaciones adicionales..."></textarea>
+                        </div>
                     </div>
                 </div>
 
